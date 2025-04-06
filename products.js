@@ -84,12 +84,56 @@ products.post("/products", async (req, res) => {
         });
     }
 });
-products.patch("/products/:productid", (req, res) => {
-    res.send("Updating a product")
+
+products.patch("/products/:productid", async (req, res) => {
+    const { productTitle, productDescription, isOnOffer} = req.body;
+    const {productid} = req.params;
+    try {
+         const updatedProduct = await client.product.update({
+           where: {
+            id: productid,
+           },
+           data: {
+            productTitle: productTitle && productTitle,
+            productDescription: productDescription && productDescription,
+            isOnOffer: isOnOffer && isOnOffer
+        }
+            
+         })
+         res.status(200).json({
+            status: "Success",
+            message: "Product updated succesfully",
+            data: updatedProduct
+         })
+
+    } catch (error) {
+        res.status(500).json({
+            status: "Error",
+            message: "Error updating the product"
+        })
+
+    }
 })
 
-products.delete("/products/:productid", (req, res) => {
-    res.send("Deleting a specific product")
+products.delete("/products/:productid", async (req, res) => {
+    const {productid} = req.params;
+    try {
+        const deletedproduct = await client.product.delete({
+            where: {
+                id: productid
+            }
+        })
+        res.status(200).json({
+            status: "Success",
+            message:"Product deleted succesfully",
+           
+        })
+    } catch(error) {
+        res.status(500).json({
+            status: "Error",
+            message: "Error deleting the product"
+        })
+    }
 })
 
 let port = process.env.PORT || 3000
