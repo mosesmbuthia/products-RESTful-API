@@ -24,9 +24,37 @@ products.get("/products", async (req, res) => {
     }
 })
 
-products.get("/products/:productid", (req, res) => {
-    res.send("Getting a specific product")
-})
+products.get("/products/:productid", async (req, res) => {
+    const { productid } = req.params;
+
+    try {
+        const product = await client.product.findFirst({
+            where: {
+                id: productid,
+            },
+        });
+
+        if (!product) {
+            return res.status(404).json({
+                status: "Error",
+                message: `Product with ID ${productid} not found!`,
+            });
+        }
+
+        return res.status(200).json({
+            status: "Success",
+            data: product,
+        });
+
+    } catch (error) {
+        console.error(`Error fetching product with ID ${productid}:`, error);
+        return res.status(500).json({
+            status: "Error",
+            message: "Something went wrong",
+        });
+    }
+});
+
 
 products.post("/products", async (req, res) => {
     try {
