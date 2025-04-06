@@ -7,8 +7,21 @@ const products = express();
 
 products.use(express.json());
 
-products.get("/products", (req, res) => {
-    res.send("Getting all products")
+products.get("/products", async (req, res) => {
+    try {
+        const products = await client.product.findMany();
+        res.status(200).json({
+            status: "Success",
+            message: "Succesfully fetched all the products",
+            data: products
+        })
+    } catch(error) {
+        console.error("Error fetching the products");
+        res.status(500).json({
+            status: "Error",
+            message: "Something went wrong"
+        })
+    }
 })
 
 products.get("/products/:productid", (req, res) => {
@@ -39,7 +52,7 @@ products.post("/products", async (req, res) => {
         res.status(500).json({
             status: "error",
             message: "Something went wrong",
-            error: error.message
+            
         });
     }
 });
